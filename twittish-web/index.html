@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Twittish</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="bg">
+  <!-- Icons sprite -->
+  <div style="display:none">
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!-- Load external icons.svg if you prefer; kept inline for simplicity -->
+    <svg xmlns="http://www.w3.org/2000/svg">
+      <symbol id="i-home" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+      </symbol>
+      <symbol id="i-search" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+      </symbol>
+      <symbol id="i-bell" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M12 22a2 2 0 002-2H10a2 2 0 002 2zm6-6V11a6 6 0 10-12 0v5l-2 2v1h16v-1l-2-2z"/>
+      </symbol>
+      <symbol id="i-like" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41.81 4.5 2.09C12.09 4.81 13.76 4 15.5 4 18 4 20 6 20 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+      </symbol>
+      <symbol id="i-reply" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M10 9V5l-7 7 7 7v-4h4.5c3.04 0 5.5-2.46 5.5-5.5S17.54 9 14.5 9H10z"/>
+      </symbol>
+      <symbol id="i-user" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 9a7 7 0 10-14 0h14z"/>
+      </symbol>
+      <symbol id="i-logout" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M16 13v-2H7V8l-5 4 5 4v-3h9zM20 3h-8a2 2 0 00-2 2v4h2V5h8v14h-8v-4h-2v4a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2z"/>
+      </symbol>
+    </svg>
+  </div>
+
+  <header class="topbar">
+    <div class="container row gap">
+      <div class="row gap">
+        <div class="logo">Twittish</div>
+        <nav class="row gap hide-sm">
+          <button class="navlink" data-route="home">
+            <svg class="icon"><use href="#i-home"/></svg> Home
+          </button>
+          <button class="navlink" data-route="latest">
+            <svg class="icon"><use href="#i-search"/></svg> Latest
+          </button>
+          <button class="navlink" data-route="search">
+            <svg class="icon"><use href="#i-search"/></svg> Search
+          </button>
+        </nav>
+      </div>
+      <div class="row gap">
+        <div id="authed-actions" class="row gap">
+          <button id="notif-btn" class="pill">
+            <svg class="icon"><use href="#i-bell"/></svg>
+            <span id="notif-badge" class="badge" style="display:none">0</span>
+          </button>
+          <button id="profile-btn" class="pill">
+            <svg class="icon"><use href="#i-user"/></svg>
+          </button>
+          <button id="logout-btn" class="pill danger">
+            <svg class="icon"><use href="#i-logout"/></svg>
+          </button>
+        </div>
+        <div id="guest-actions" class="row gap">
+          <button id="login-open" class="btn primary">Login</button>
+          <button id="register-open" class="btn">Register</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container content">
+    <section id="composer" class="card" style="display:none">
+      <textarea id="compose-input" class="input" rows="3" maxlength="280" placeholder="What's happening?"></textarea>
+      <div class="row space">
+        <span id="char-count" class="muted">0/280</span>
+        <div class="row gap">
+          <input id="media-url" class="input sm" placeholder="Image URL (optional)" />
+          <button id="post-btn" class="btn primary">Post</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="feed" class="stack"></section>
+  </main>
+
+  <footer class="bottomnav show-sm">
+    <div class="container row space">
+      <button class="navlink" data-route="home">
+        <svg class="icon"><use href="#i-home"/></svg>
+        <span class="label">Home</span>
+      </button>
+      <button class="navlink" data-route="latest">
+        <svg class="icon"><use href="#i-search"/></svg>
+        <span class="label">Latest</span>
+      </button>
+      <button class="navlink" data-route="search">
+        <svg class="icon"><use href="#i-search"/></svg>
+        <span class="label">Search</span>
+      </button>
+    </div>
+  </footer>
+
+  <!-- Modals -->
+  <div id="modal-overlay" class="overlay" style="display:none"></div>
+
+  <div id="auth-modal" class="modal" style="display:none">
+    <div class="modal-header">
+      <h3 id="auth-title">Login</h3>
+      <button class="close">&times;</button>
+    </div>
+    <div class="modal-body stack">
+      <input id="auth-email" class="input" placeholder="Email" />
+      <input id="auth-username" class="input" placeholder="Username" />
+      <input id="auth-password" class="input" type="password" placeholder="Password" />
+      <button id="auth-submit" class="btn primary">Submit</button>
+      <p class="muted sm">Use either Email or Username to login. Password is stored locally (demo only).</p>
+    </div>
+  </div>
+
+  <div id="profile-modal" class="modal" style="display:none">
+    <div class="modal-header">
+      <h3>Profile</h3>
+      <button class="close">&times;</button>
+    </div>
+    <div class="modal-body stack">
+      <input id="profile-display" class="input" placeholder="Display name" />
+      <textarea id="profile-bio" class="input" rows="3" maxlength="160" placeholder="Bio"></textarea>
+      <input id="profile-avatar" class="input" placeholder="Avatar URL" />
+      <button id="profile-save" class="btn primary">Save</button>
+    </div>
+  </div>
+
+  <div id="search-modal" class="modal" style="display:none">
+    <div class="modal-header">
+      <h3>Search</h3>
+      <button class="close">&times;</button>
+    </div>
+    <div class="modal-body stack">
+      <input id="search-input" class="input" placeholder="Search users, tags, posts" />
+      <div id="search-results" class="stack"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+            </html>
+        
